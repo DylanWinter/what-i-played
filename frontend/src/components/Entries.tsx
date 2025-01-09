@@ -29,7 +29,7 @@ import React, {useEffect, useState} from 'react';
         useEffect(() => {
             const fetchData = async () => {
                 try {
-                    const result = await fetch('http://localhost:3001/api',
+                    const result = await fetch('http://localhost:3001/api/getList',
                         {method: 'POST', headers: new Headers({'Content-Type': 'application/json'}),});
                     const data = await result.json();
                     const formattedData: GameEntryData[] = data.map((item: any) => ({
@@ -65,19 +65,37 @@ import React, {useEffect, useState} from 'react';
 
         const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
             e.preventDefault();
-            setEntries((prevEntries) => [...prevEntries, formData]);
-            setFormData({
-                title: '',
-                releaseYear: '',
-                remasterYear: '',
-                rating: '',
-                thoughts: '',
-                platform: '',
-                replay: false,
-                modded: false,
-                dropped: false
-            });
-
+            fetch("http://localhost:3001/api/addGame", {
+                method: "POST",
+                body: JSON.stringify(formData),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then(res => {
+                if (!res.ok) {
+                    throw new Error("Failed to add game entry, server responsed with " + res.statusText);
+                    res.json();
+                }
+            }).then((data) => {
+                    setEntries((prevEntries) => [...prevEntries, formData]);
+                    setFormData({
+                        title: '',
+                        releaseYear: '',
+                        remasterYear: '',
+                        rating: '',
+                        thoughts: '',
+                        platform: '',
+                        replay: false,
+                        modded: false,
+                        dropped: false
+                    });
+                })
+            .catch((error => {
+                    console.error("Error adding game:", error);
+                    alert("Failed to add the game. Please try again.");
+                })
+            );
+            console.log(formData);
         };
 
         return (

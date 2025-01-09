@@ -69,11 +69,23 @@ app.post("/register", async (req: Request, res: Response) => {
    }
 });
 
-app.post("/api", ensureAuthenticated, async (req: Request, res: Response) => {
+app.post("/api/getList", ensureAuthenticated, async (req: Request, res: Response) => {
     let user:User = await req.user;
     let results = await db.getUserGameDataById(user.id);
-    console.log(results);
     res.send(results);
+})
+
+app.post("/api/addGame", ensureAuthenticated, async (req: Request, res: Response) => {
+    let user:User = await req.user;
+    let data:any = req.body;
+    try {
+        db.addGameEntry(user.id, data.title, parseInt(data.releaseYear), parseInt(data.remasterYear), parseInt(data.rating),
+            data.thoughts, data.platform, data.modded, data.replay, data.dropped);
+        res.status(201).send("Game Added");
+    }
+    catch (e) {
+        res.status(400).send("Error adding game entry");
+    }
 })
 
 // Static middleware, needs to be defined after routes

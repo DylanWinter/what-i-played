@@ -1,4 +1,5 @@
 import pg from "pg";
+import {release} from "node:os";
 
 const { Client } = pg;
 
@@ -8,10 +9,10 @@ class Database {
     constructor() {
         this.db =  new Client({
             user: 'postgres',
-            password: '5614',
+            password: 'Dbpk3466',
             host     : 'localhost',
             port     :  5432,
-            database : "WhatIPlayed"
+            database : "whatiplayed"
         })
         this.db.connect()
     }
@@ -57,6 +58,25 @@ class Database {
                        WHERE user_id = ($1);`;
         let result:any = await this.db.query(query, [id]);
         return result.rows;
+    }
+
+    async addGameEntry(userId: number, title:string, releaseYear:number, remasterYear:number,
+                       rating:number, thoughts:string, platform:string, modded:boolean, replay: boolean, dropped:boolean)
+    {
+        const query = `INSERT INTO entries(user_id, game_name, rating, thoughts, release_year, remaster_year, platform, modded, replaying, dropped)
+                       VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`;
+
+        let releaseYearClean:number|null = Number.isNaN(releaseYear) ? null : releaseYear;
+        let remasterYearClean:number|null = Number.isNaN(remasterYear) ? null : remasterYear;
+        let ratingClean:number|null = Number.isNaN(rating) ? null : rating;
+
+        try {
+             await this.db.query(query, [userId, title, ratingClean, thoughts, releaseYearClean, remasterYearClean, platform, modded, replay, dropped]);
+        }
+        catch (e) {
+            console.error(e);
+            throw e;
+        }
     }
 }
 
