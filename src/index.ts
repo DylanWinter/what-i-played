@@ -88,6 +88,18 @@ app.post("/api/addGame", ensureAuthenticated, async (req: Request, res: Response
     }
 })
 
+app.delete("/api/deleteGame", ensureAuthenticated, async (req: Request, res: Response) => {
+    let user:User = await req.user;
+    let data:any = req.body;
+    try {
+        db.deleteGameEntry(user.id, data.title);
+        res.status(201).send("Game Deleted");
+    } catch (e) {
+        console.error(e);
+        res.status(400).send("Error deleting game entry");
+    }
+})
+
 // Static middleware, needs to be defined after routes
 app.use(express.static(path.resolve(publicDir)));
 app.use(express.static(path.resolve(publicDir, "build")));

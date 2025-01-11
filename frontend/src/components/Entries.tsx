@@ -60,7 +60,24 @@ import React, {useEffect, useState} from 'react';
         };
 
         const handleDelete = (index: number) => {
-            setEntries(entries.filter((_, i) => i !== index)); // Remove entry by index
+            fetch("http://localhost:3001/api/deleteGame", {
+                method: 'DELETE',
+                body: JSON.stringify({
+                    title: entries[index].title
+                }),
+                headers: {
+                    "Content-type": "application/json; charset=UTF-8"
+                }
+            }).then(res => {
+                if (!res.ok) {
+                    throw new Error("Failed to delete game entry, server responsed with " + res.statusText);
+                }
+            }).then(data => {
+                setEntries(entries.filter((_, i) => i !== index)); // Remove entry by index
+            }).catch((error => {
+                console.error("Error deleting game:", error);
+                alert("Failed to delete the game. Please try again.");
+            }))
         };
 
         const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -74,7 +91,6 @@ import React, {useEffect, useState} from 'react';
             }).then(res => {
                 if (!res.ok) {
                     throw new Error("Failed to add game entry, server responsed with " + res.statusText);
-                    res.json();
                 }
             }).then((data) => {
                     setEntries((prevEntries) => [...prevEntries, formData]);

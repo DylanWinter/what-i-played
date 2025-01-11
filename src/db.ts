@@ -78,6 +78,17 @@ class Database {
             throw e;
         }
     }
+
+    async deleteGameEntry(user_id: number, title: string):Promise<any> {
+        let query:string = `DELETE FROM entries WHERE user_id = $1 AND game_name = $2`;
+        try {
+            await this.db.query(query, [user_id, title]);
+        }
+        catch (e) {
+            console.error(e);
+            throw e;
+        }
+    }
 }
 
 export const db = new Database();
